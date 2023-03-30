@@ -1,7 +1,8 @@
 # %% imports
 import numpy as np
 import random
-
+import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 # %% point class
@@ -52,6 +53,7 @@ class Point:
 class Sierpinski:
 
     def __init__(self, corner1: Point, corner2: Point, corner3: Point):
+        self.current_point = None
         self.__corner1 = corner1
         self.__corner2 = corner2
         self.__corner3 = corner3
@@ -100,30 +102,96 @@ class Sierpinski:
 
     # choose random corner point
     def random_corner(self):
-        return random.choice(self.get_points()).coordinates
+        return random.choice(self.get_points())
 
-    # choose first point
-    def first_point(self):
-        min_x = min(self.__corner1.x, self.__corner2.x, self.__corner3.x)
-        max_x = max(self.__corner1.x, self.__corner2.x, self.__corner3.x)
-        min_y = min(self.__corner1.y, self.__corner2.y, self.__corner3.y)
-        max_y = max(self.__corner1.y, self.__corner2.y, self.__corner3.y)
-        x = random.uniform(min_x, max_x)
-        y = random.uniform(min_y, max_y)
-        self.__test_point = Point()
-
-
-
-    # get point between previous point and random corner point
     def rule1(self):
+        """
+        Choose one of the three corner points to start in
+        :return:
+        """
+        self.current_point = self.random_corner()
 
+    def rule2(self):
+        """
+        Choose one of the three corner points
+        :return:
+        """
+        next_corner = self.random_corner()
+        self.middle_point(next_corner)
+
+    def rule3(self):
+        """Mark the point, i.e. store in memory (or draw)"""
+        pass
+
+    def middle_point(self, point1):
+        """
+        Get the point in the middle of two points.
+        :param point1:
+        :param point2:
+        :return: Point object with coordinates in the middle of input points
+        """
+        point2 = self.current_point
+
+        # find new x value
+        delta_x = np.abs(point1.x - point2.x)
+        new_x = point1.x + delta_x/2 if point1.x < point2.x else point1.x - delta_x/2
+
+        # find new y value
+        delta_y = np.abs(point1.y - point2.y)
+        new_y = point1.y + delta_y / 2 if point1.y < point2.y else point1.y - delta_y / 2
+
+        # go to the next point
+        self.current_point = Point(new_x, new_y)
+
+    def algorithm(self, n: int):
+        """
+        The algorithm creating the Sierpinsky triangle
+        :param n: Number of iterations
+        :return:
+        """
+        # choose starting corner
+        self.rule1()
+
+        fig = plt.figure()
+
+        # plot corner points
+        plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k')
+        plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k')
+        plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k')
+
+        for i in tqdm(range(n)):
+            # find next point
+            self.rule2()
+
+            # plot the new point
+            plt.scatter(x=self.current_point.x, y=self.current_point.y, c='k', s=2)
+
+        plt.title(f'Sierpinsky Triangle after {n} iterations')
+        plt.show()
 
 
 # %% main
 
 if __name__ == '__main__':
     p1 = Point(1, 1)
-    p2 = Point(2, 2)
+    p2 = Point(2, np.sqrt(3))
     p3 = Point(3, 1)
     st = Sierpinski(p1, p2, p3)
-    print(st.random_point())
+    st.algorithm(n=10000)
+
+
+    # choose first point
+    # def first_point(self):
+    #     min_x = min(self.__corner1.x, self.__corner2.x, self.__corner3.x)
+    #     max_x = max(self.__corner1.x, self.__corner2.x, self.__corner3.x)
+    #     min_y = min(self.__corner1.y, self.__corner2.y, self.__corner3.y)
+    #     max_y = max(self.__corner1.y, self.__corner2.y, self.__corner3.y)
+    #
+    #     inside = False
+    #     while not inside:
+    #         x = random.uniform(min_x, max_x)
+    #         y = random.uniform(min_y, max_y)
+    #         self.__test_point = Point(x, y)
+    #         print(self.__test_point.coordinates)
+    #         inside = self.is_inside_triangle()
+    #     print(f'{self.__test_point.coordinates} is in triangle!')
