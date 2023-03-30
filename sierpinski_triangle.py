@@ -3,6 +3,8 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import decimal as dec
+import plotly.graph_objects as go
 
 
 # %% point class
@@ -133,12 +135,32 @@ class Sierpinski:
         point2 = self.current_point
 
         # find new x value
-        delta_x = np.abs(point1.x - point2.x)
-        new_x = point1.x + delta_x/2 if point1.x < point2.x else point1.x - delta_x/2
+        if point1.x > point2.x:
+            delta_x = dec.Decimal(point1.x) - dec.Decimal(point2.x)
+            new_x = dec.Decimal(point2.x) + delta_x / dec.Decimal(2)
+            new_x = new_x.__float__()
 
-        # find new y value
-        delta_y = np.abs(point1.y - point2.y)
-        new_y = point1.y + delta_y / 2 if point1.y < point2.y else point1.y - delta_y / 2
+        else:
+            delta_x = dec.Decimal(point2.x) - dec.Decimal(point1.x)
+            new_x = dec.Decimal(point1.x) + delta_x / dec.Decimal(2)
+            new_x = new_x.__float__()
+
+        #delta_x = np.abs(point1.x - point2.x)
+        #new_x = point1.x + delta_x/2 if point1.x < point2.x else point1.x - delta_x/2
+
+        # find new x value
+        if point1.y > point2.y:
+            delta_y = dec.Decimal(point1.y) - dec.Decimal(point2.y)
+            new_y = dec.Decimal(point2.y) + delta_y / dec.Decimal(2)
+            new_y = new_y.__float__()
+
+        else:
+            delta_y = dec.Decimal(point2.y) - dec.Decimal(point1.y)
+            new_y = dec.Decimal(point1.y) + delta_y / dec.Decimal(2)
+            new_y = new_y.__float__()
+
+        #delta_y = np.abs(point1.y - point2.y)
+        #new_y = point1.y + delta_y / 2 if point1.y < point2.y else point1.y - delta_y / 2
 
         # go to the next point
         self.current_point = Point(new_x, new_y)
@@ -152,32 +174,50 @@ class Sierpinski:
         # choose starting corner
         self.rule1()
 
-        fig = plt.figure()
+        #fig = plt.figure()
+        fig = go.Figure()
 
         # plot corner points
-        plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k')
-        plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k')
-        plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k')
+        #plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k')
+        #plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k')
+        #plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k')
+        fig.add_trace(go.Scatter(x=[self.__corner1.x], y=[self.__corner1.y], mode='markers', marker=dict(size=5, color='black')))
+        fig.add_trace(go.Scatter(x=[self.__corner2.x], y=[self.__corner2.y], mode='markers', marker=dict(size=5, color='black')))
+        fig.add_trace(go.Scatter(x=[self.__corner3.x], y=[self.__corner3.y], mode='markers', marker=dict(size=5, color='black')))
+
 
         for i in tqdm(range(n)):
             # find next point
             self.rule2()
 
+            # add the middle point
+            self.added_points.append(self.current_point)
             # plot the new point
-            plt.scatter(x=self.current_point.x, y=self.current_point.y, c='k', s=2)
+            #plt.scatter(x=self.current_point.x, y=self.current_point.y, c='k', s=2)
 
-        plt.title(f'Sierpinsky Triangle after {n} iterations')
-        plt.show()
+        # plot the added points
+        #plt.scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], c='k', s=2)
+        fig.add_trace(go.Scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], mode='markers',marker=dict(size=2, color='black')))
+
+        #plt.title(f'Sierpinsky Triangle after {n} iterations')
+        #plt.show()
+
+        # Add a title and axis labels
+        fig.update_layout(title=f'Sierpinsky Triangle after {n} iterations',
+                          xaxis_title='X Axis',
+                          yaxis_title='Y Axis')
+        fig.show()
 
 
 # %% main
 
 if __name__ == '__main__':
+    dec.getcontext().prec = 6  # precision
     p1 = Point(1, 1)
     p2 = Point(2, np.sqrt(3))
     p3 = Point(3, 1)
     st = Sierpinski(p1, p2, p3)
-    st.algorithm(n=10000)
+    st.algorithm(n=int(1e5))
 
 
     # choose first point
