@@ -135,32 +135,12 @@ class Sierpinski:
         point2 = self.current_point
 
         # find new x value
-        if point1.x > point2.x:
-            delta_x = dec.Decimal(point1.x) - dec.Decimal(point2.x)
-            new_x = dec.Decimal(point2.x) + delta_x / dec.Decimal(2)
-            new_x = new_x.__float__()
+        delta_x = np.abs(point1.x - point2.x)
+        new_x = point1.x + delta_x/2 if point1.x < point2.x else point1.x - delta_x/2
 
-        else:
-            delta_x = dec.Decimal(point2.x) - dec.Decimal(point1.x)
-            new_x = dec.Decimal(point1.x) + delta_x / dec.Decimal(2)
-            new_x = new_x.__float__()
-
-        #delta_x = np.abs(point1.x - point2.x)
-        #new_x = point1.x + delta_x/2 if point1.x < point2.x else point1.x - delta_x/2
-
-        # find new x value
-        if point1.y > point2.y:
-            delta_y = dec.Decimal(point1.y) - dec.Decimal(point2.y)
-            new_y = dec.Decimal(point2.y) + delta_y / dec.Decimal(2)
-            new_y = new_y.__float__()
-
-        else:
-            delta_y = dec.Decimal(point2.y) - dec.Decimal(point1.y)
-            new_y = dec.Decimal(point1.y) + delta_y / dec.Decimal(2)
-            new_y = new_y.__float__()
-
-        #delta_y = np.abs(point1.y - point2.y)
-        #new_y = point1.y + delta_y / 2 if point1.y < point2.y else point1.y - delta_y / 2
+        # find new y value
+        delta_y = np.abs(point1.y - point2.y)
+        new_y = point1.y + delta_y / 2 if point1.y < point2.y else point1.y - delta_y / 2
 
         # go to the next point
         self.current_point = Point(new_x, new_y)
@@ -174,40 +154,41 @@ class Sierpinski:
         # choose starting corner
         self.rule1()
 
-        #fig = plt.figure()
-        fig = go.Figure()
-
-        # plot corner points
-        #plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k')
-        #plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k')
-        #plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k')
-        fig.add_trace(go.Scatter(x=[self.__corner1.x], y=[self.__corner1.y], mode='markers', marker=dict(size=5, color='black')))
-        fig.add_trace(go.Scatter(x=[self.__corner2.x], y=[self.__corner2.y], mode='markers', marker=dict(size=5, color='black')))
-        fig.add_trace(go.Scatter(x=[self.__corner3.x], y=[self.__corner3.y], mode='markers', marker=dict(size=5, color='black')))
-
-
-        for i in tqdm(range(n)):
+        for _ in tqdm(range(n)):
             # find next point
             self.rule2()
 
             # add the middle point
             self.added_points.append(self.current_point)
-            # plot the new point
-            #plt.scatter(x=self.current_point.x, y=self.current_point.y, c='k', s=2)
+
+    def plot_points(self, plot_type: str):
+        if plot_type == 'plt':
+            fig = plt.figure()
+        elif plot_type == 'go':
+            fig = go.Figure()
+
+        # plot corner points
+        if plot_type == 'plt':
+            plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k')
+            plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k')
+            plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k')
+        elif plot_type == 'go':
+            fig.add_trace(go.Scatter(x=[self.__corner1.x], y=[self.__corner1.y], mode='markers', marker=dict(size=5, color='black')))
+            fig.add_trace(go.Scatter(x=[self.__corner2.x], y=[self.__corner2.y], mode='markers', marker=dict(size=5, color='black')))
+            fig.add_trace(go.Scatter(x=[self.__corner3.x], y=[self.__corner3.y], mode='markers', marker=dict(size=5, color='black')))
 
         # plot the added points
-        #plt.scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], c='k', s=2)
-        fig.add_trace(go.Scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], mode='markers',marker=dict(size=2, color='black')))
-
-        #plt.title(f'Sierpinsky Triangle after {n} iterations')
-        #plt.show()
-
-        # Add a title and axis labels
-        fig.update_layout(title=f'Sierpinsky Triangle after {n} iterations',
-                          xaxis_title='X Axis',
-                          yaxis_title='Y Axis')
-        fig.show()
-
+        if plot_type == 'plt':
+            plt.scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], c='k', s=2)
+            plt.title(f'Sierpinsky Triangle after {len(self.added_points)} iterations')
+            plt.show()
+        elif plot_type == 'go':
+            fig.add_trace(go.Scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], mode='markers',marker=dict(size=2, color='black')))
+            fig.update_layout(title=f'Sierpinsky Triangle after {n} iterations',
+                              xaxis_title='X Axis',
+                              yaxis_title='Y Axis')
+            fig.show()
+        return fig
 
 # %% main
 
@@ -218,20 +199,16 @@ if __name__ == '__main__':
     p3 = Point(3, 1)
     st = Sierpinski(p1, p2, p3)
     st.algorithm(n=int(1e5))
+    fig = st.plot_points(plot_type='plt')
 
+    # remove all spines
+    ax = fig.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+    ax.set_title('')
+    fig.savefig('triangle.png')
 
-    # choose first point
-    # def first_point(self):
-    #     min_x = min(self.__corner1.x, self.__corner2.x, self.__corner3.x)
-    #     max_x = max(self.__corner1.x, self.__corner2.x, self.__corner3.x)
-    #     min_y = min(self.__corner1.y, self.__corner2.y, self.__corner3.y)
-    #     max_y = max(self.__corner1.y, self.__corner2.y, self.__corner3.y)
-    #
-    #     inside = False
-    #     while not inside:
-    #         x = random.uniform(min_x, max_x)
-    #         y = random.uniform(min_y, max_y)
-    #         self.__test_point = Point(x, y)
-    #         print(self.__test_point.coordinates)
-    #         inside = self.is_inside_triangle()
-    #     print(f'{self.__test_point.coordinates} is in triangle!')
