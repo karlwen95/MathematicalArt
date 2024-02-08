@@ -83,7 +83,7 @@ class Sierpinski:
     def get_points(self):
         return self.__corner1, self.__corner2, self.__corner3
 
-    def __area(self, leave_out_point = 0):
+    def __area(self, leave_out_point=0):
         x1, y1 = self.__corner1.coordinates
         x2, y2 = self.__corner1.coordinates
         x3, y3 = self.__corner1.coordinates
@@ -161,17 +161,17 @@ class Sierpinski:
             # add the middle point
             self.added_points.append(self.current_point)
 
-    def plot_points(self, plot_type: str):
+    def plot_points(self, plot_type: str, dpi: int, figure_width_inch: float, figure_height_inch: float):
         if plot_type == 'plt':
-            fig = plt.figure()
+            fig = plt.figure(figsize=(figure_width_inch, figure_height_inch), dpi=dpi)
         elif plot_type == 'go':
             fig = go.Figure()
 
         # plot corner points
         if plot_type == 'plt':
-            plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k')
-            plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k')
-            plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k')
+            plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k', s=2)
+            plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k', s=2)
+            plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k', s=2)
         elif plot_type == 'go':
             fig.add_trace(go.Scatter(x=[self.__corner1.x], y=[self.__corner1.y], mode='markers', marker=dict(size=5, color='black')))
             fig.add_trace(go.Scatter(x=[self.__corner2.x], y=[self.__corner2.y], mode='markers', marker=dict(size=5, color='black')))
@@ -199,7 +199,19 @@ if __name__ == '__main__':
     p3 = Point(3, 1)
     st = Sierpinski(p1, p2, p3)
     st.algorithm(n=int(1e5))
-    fig = st.plot_points(plot_type='plt')
+
+    # Figure size,
+    poster_width = 80  # cm
+    poster_height = 120  # cm
+    cm_per_inch = 2.54
+    poster_width_inch = poster_width / cm_per_inch
+    poster_height_inch = poster_height / cm_per_inch
+
+    fig_width = poster_width_inch / 2
+    fig_height = poster_height_inch / 6
+
+
+    fig = st.plot_points(plot_type='plt', dpi=300, figure_width_inch=6.4, figure_height_inch=4.8)
 
     # remove all spines
     ax = fig.gca()
@@ -210,5 +222,5 @@ if __name__ == '__main__':
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     ax.set_title('')
-    fig.savefig('triangle.png')
+    fig.savefig('triangle2.png', format='png')
 
