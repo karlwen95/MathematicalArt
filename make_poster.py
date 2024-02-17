@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import numpy as np
 import textwrap
 
 
@@ -36,9 +37,12 @@ def include_figure(poster, figure, pos: tuple):
 
 if __name__ == '__main__':
     # get blank poster
-    dpi = 300
-    poster_width_px = int(80 * dpi / 2.54)  # Convert 80cm to pixels
-    poster_height_px = int(120 * dpi / 2.54)  # Convert 120cm to pixels
+    dpi = 225
+    width_cm = 50
+    height_cm = 70
+    poster_width_px = int(width_cm * dpi / 2.54)  # Convert cm to pixels
+    poster_height_px = int(height_cm * dpi / 2.54)  # Convert cm to pixels
+    # poster_height_px = 14172  # Convert 120cm to pixels
 
     # width = 9450
     # height = 14172
@@ -55,38 +59,68 @@ if __name__ == '__main__':
 
     # Calculate figure position to be central
     figure_x = (poster_width_px - figure_width) // 2
-    figure_y = (poster_height_px - figure_height) // 2 - 100  # Shift up slightly to leave space for text and signature
+    figure_y = (poster_height_px - figure_height) // 2 - 300  # Shift up slightly to leave space for text and signature
 
     # Paste the figure
     poster.paste(figure_image_resized, (figure_x, figure_y))
 
     # Add description text below the figure
     draw = ImageDraw.Draw(poster)
+    title_font_size = 68  # 96
     # set up font and texts, see  ~/Library/Fonts/ to see alternatives
-    title_font = ImageFont.truetype("PlayfairDisplay-BlackItalic.otf", 96*2)
-    signature1_font = ImageFont.truetype("PlayfairDisplay-Regular.otf", 48*2)
-    signature2_font = ImageFont.truetype("PlayfairDisplay-Italic.otf", 48*2)
-    title = "Algorithm"
+    # title_font = ImageFont.truetype("PlayfairDisplay-BlackItalic.otf", title_font_size)
+    algo_font = ImageFont.truetype("PlayfairDisplay-Regular.otf", title_font_size)
+    signature1_font = ImageFont.truetype("PlayfairDisplay-Regular.otf", 36)  # 48
+    signature2_font = ImageFont.truetype("PlayfairDisplay-Italic.otf", 36)  # 48
+    #    algorithm = "1. Draw the corners in a triangle\
+    #    \n2. Select one corner as your current point\
+    #    \n3. Draw a point halfway between the current point \
+    #    \n    and a randomly selected corner\
+    #    \n4. The middle point is the current point\
+    #    \n5. Repeat step 3-4"
+
+    algorithm = ("        1.    Start with a triangle\
+    \n        2.    Pick a corner\
+    \n        3.    Move halfway to a random corner\
+    \n        4.    Mark a point\
+    \n        5.    Repeat step 3-4\
+    \n \
+    \nThe pattern emerges as points accumulates")
+
+
+    algorithm_lines = algorithm.split('\n')
+
     signature1 = 'Mathematical Art'
     signature2 = 'Sierpínsky Triangle'
 
+    # Write algorithm steps
+    y = figure_y + figure_height - 500  # Above the figure
+    extra_spacing = 35
+    for i, line in enumerate(algorithm_lines):
+        temp_bbox = draw.textbbox((0, 0), line, font=algo_font)
+        # x = (poster_width_px - temp_bbox[2]) // 2
+        x = poster_width_px // 2 - 400
+        y += title_font_size + extra_spacing  # Move to the next line; adjust spacing as needed
+        draw.text((x, y), line, fill="black", font=algo_font)
+        print(temp_bbox[2])
+
     # Title
     #title_width, title_height = draw.textsize(title, font=title_font)
-    title_bbox = draw.textbbox((0, 0), title, font=title_font)
-    title_x = (poster_width_px - title_bbox[2]) // 2
-    title_y = figure_y + figure_height + 50  # Above the figure
-    draw.text((title_x, title_y), title, fill="black", font=title_font)
+    #title_bbox = draw.textbbox((0, 0), title, font=title_font)
+    #title_x = (poster_width_px - title_bbox[2]) // 2
+    #title_y = figure_y + figure_height + 50  # Above the figure
+    #draw.text((title_x, title_y), title, fill="black", font=title_font)
 
     # Signature
     #signature1_width, signature1_height = draw.textsize(signature1, font=signature1_font)
     signature1_bbox = draw.textbbox((0,0), signature1, font=signature1_font)
     signature1_x = poster_width_px - signature1_bbox[2] - 100  # Right corner, with margin
-    signature1_y = poster_height_px - signature1_bbox[3] - 50  # Bottom corner, with margin
+    signature1_y = poster_height_px - signature1_bbox[3] - 100  # Bottom corner, with margin
     draw.text((signature1_x, signature1_y), signature1, fill="black", font=signature1_font)
 
     signature2_bbox = draw.textbbox((0, 0), signature2, font=signature2_font)
     signature2_x = poster_width_px - signature2_bbox[2] - 100  # Right corner, with margin
-    signature2_y = poster_height_px - signature1_bbox[3] - signature2_bbox[3] - 50  # Below signature1
+    signature2_y = poster_height_px - signature1_bbox[3] - signature2_bbox[3] - 100  # Below signature1
     draw.text((signature2_x, signature2_y), signature2, fill="black", font=signature2_font)
 
     # Save the poster
