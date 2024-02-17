@@ -169,9 +169,9 @@ class Sierpinski:
 
         # plot corner points
         if plot_type == 'plt':
-            plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k', s=2)
-            plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k', s=2)
-            plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k', s=2)
+            plt.scatter(x=self.__corner1.x, y=self.__corner1.y, c='k', s=0.001)
+            plt.scatter(x=self.__corner2.x, y=self.__corner2.y, c='k', s=0.001)
+            plt.scatter(x=self.__corner3.x, y=self.__corner3.y, c='k', s=0.001)
         elif plot_type == 'go':
             fig.add_trace(go.Scatter(x=[self.__corner1.x], y=[self.__corner1.y], mode='markers', marker=dict(size=5, color='black')))
             fig.add_trace(go.Scatter(x=[self.__corner2.x], y=[self.__corner2.y], mode='markers', marker=dict(size=5, color='black')))
@@ -179,12 +179,12 @@ class Sierpinski:
 
         # plot the added points
         if plot_type == 'plt':
-            plt.scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], c='k', s=2)
+            plt.scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], c='k', s=0.001)
             plt.title(f'Sierpinsky Triangle after {len(self.added_points)} iterations')
             plt.show()
         elif plot_type == 'go':
             fig.add_trace(go.Scatter(x=[p.x for p in self.added_points], y=[p.y for p in self.added_points], mode='markers',marker=dict(size=2, color='black')))
-            fig.update_layout(title=f'Sierpinsky Triangle after {n} iterations',
+            fig.update_layout(title=f'Sierpinsky Triangle after {self.added_points} iterations',
                               xaxis_title='X Axis',
                               yaxis_title='Y Axis')
             fig.show()
@@ -198,7 +198,7 @@ if __name__ == '__main__':
     p2 = Point(2, np.sqrt(3))
     p3 = Point(3, 1)
     st = Sierpinski(p1, p2, p3)
-    st.algorithm(n=int(1e5))
+    st.algorithm(n=int(1e8))
 
     # Figure size,
     poster_width = 80  # cm
@@ -222,5 +222,5 @@ if __name__ == '__main__':
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     ax.set_title('')
-    fig.savefig('triangle2.png', format='png')
+    fig.savefig('triangle_manySmallPoints.png', format='png')
 
