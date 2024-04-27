@@ -36,10 +36,21 @@ def include_figure(poster, figure, pos: tuple):
 
 
 if __name__ == '__main__':
+    """
+    TODO:
+        * Scale font based on figure size, should be same ratio
+        * Scale position based on figure size
+        * Figure position is not exactly in middle
+        * Create functions to clean main
+    """
     # get blank poster
     dpi = 225
-    width_cm = 50
-    height_cm = 70
+    width_cm = 30
+    height_cm = 40
+
+    # scalers
+    font_scaler = height_cm / 70  # 70 is original height for which the fonts were selected
+
     poster_width_px = int(width_cm * dpi / 2.54)  # Convert cm to pixels
     poster_height_px = int(height_cm * dpi / 2.54)  # Convert cm to pixels
     # poster_height_px = 14172  # Convert 120cm to pixels
@@ -49,7 +60,9 @@ if __name__ == '__main__':
     poster = blank_poster('RGB', size=(poster_width_px, poster_height_px), color='white')
 
     # load image file and set size
-    figure = Image.open('triangle2.png')
+    # figure = Image.open('figures/triangle2.png')
+    figname = 'convrate_resolution10'
+    figure = Image.open(f'figures/newton_fractals/{figname}.png')
     # Assuming the figure should take up most of the width but leave room for text and signature
     figure_width = int(poster_width_px * 0.9)  # 90% of the poster width
     figure_height = int(figure_width * figure.height / figure.width)  # Maintain aspect ratio
@@ -66,12 +79,14 @@ if __name__ == '__main__':
 
     # Add description text below the figure
     draw = ImageDraw.Draw(poster)
-    title_font_size = 68  # 96
+    title_font_size = int(68 * font_scaler)  # 68 for height 70. Scale with
+    signature1_font_size = int(36 * font_scaler)
+    signature2_font_size = int(36 * font_scaler)
     # set up font and texts, see  ~/Library/Fonts/ to see alternatives
     # title_font = ImageFont.truetype("PlayfairDisplay-BlackItalic.otf", title_font_size)
     algo_font = ImageFont.truetype("PlayfairDisplay-Regular.otf", title_font_size)
-    signature1_font = ImageFont.truetype("PlayfairDisplay-Regular.otf", 36)  # 48
-    signature2_font = ImageFont.truetype("PlayfairDisplay-Italic.otf", 36)  # 48
+    signature1_font = ImageFont.truetype("PlayfairDisplay-Regular.otf", signature1_font_size)  # 48
+    signature2_font = ImageFont.truetype("PlayfairDisplay-Italic.otf", signature2_font_size)  # 48
     #    algorithm = "1. Draw the corners in a triangle\
     #    \n2. Select one corner as your current point\
     #    \n3. Draw a point halfway between the current point \
@@ -94,12 +109,12 @@ if __name__ == '__main__':
     signature2 = 'Sierpínsky Triangle'
 
     # Write algorithm steps
-    y = figure_y + figure_height - 500  # Above the figure
+    y = figure_y + figure_height - int(500 * font_scaler)  # Below the figure
     extra_spacing = 35
     for i, line in enumerate(algorithm_lines):
         temp_bbox = draw.textbbox((0, 0), line, font=algo_font)
         # x = (poster_width_px - temp_bbox[2]) // 2
-        x = poster_width_px // 2 - 400
+        x = poster_width_px // 2 - int(400 * font_scaler)
         y += title_font_size + extra_spacing  # Move to the next line; adjust spacing as needed
         draw.text((x, y), line, fill="black", font=algo_font)
         print(temp_bbox[2])
@@ -124,7 +139,7 @@ if __name__ == '__main__':
     draw.text((signature2_x, signature2_y), signature2, fill="black", font=signature2_font)
 
     # Save the poster
-    poster.save('your_custom_poster2.jpg')
+    poster.save(f'posters/{figname}_{width_cm}x{height_cm}.jpg')
 
     # drawing context
 
