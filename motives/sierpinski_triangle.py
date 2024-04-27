@@ -198,7 +198,7 @@ if __name__ == '__main__':
     p2 = Point(2, np.sqrt(3))
     p3 = Point(3, 1)
     st = Sierpinski(p1, p2, p3)
-    st.algorithm(n=int(1e8))
+    st.algorithm(n=int(1e3))
 
     # Figure size,
     poster_width = 80  # cm
