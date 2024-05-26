@@ -107,10 +107,10 @@ class Newton_fractals:
 
 
 if __name__ == '__main__':
-    polynomial_degree = 4
+    polynomial_degree = 3
     x_lim = (-2, 2)
     y_lim = (-2, 2)
-    resolution = 10
+    resolution = 10000
     max_basins_iter = 50
     tolerance = 1e-6
 
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     ax_basins.xaxis.set_visible(False)
     ax_basins.yaxis.set_visible(False)
     ax_basins.set_title('')
-    fig_basins.savefig(f'../figures/newton_fractals/basins_resolution{resolution}.png', format='png')
+    fig_basins.savefig(f'../figures/newton_fractals/basins_poldeg{polynomial_degree}resolution{resolution}.png', format='png')
 
     dpi = 300
     fig_size_pixel = 1280
@@ -150,4 +150,4 @@ if __name__ == '__main__':
     ax_convrate.xaxis.set_visible(False)
     ax_convrate.yaxis.set_visible(False)
     ax_convrate.set_title('')
-    fig_rate.savefig(f'../figures/newton_fractals/convrate_resolution{resolution}.png', format='png')
+    fig_rate.savefig(f'../figures/newton_fractals/convrate_poldeg{polynomial_degree}_resolution{resolution}.png', format='png')
